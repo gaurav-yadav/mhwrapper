@@ -1,0 +1,13 @@
+.DS_Store
+
+#Nothing in dist
+dist/*
+
+#No node modules
+node_modules
+
+#No logs
+*.log
+
+#No IDE settings
+.idea/*
