@@ -4,21 +4,23 @@ export async function topWords(ctx) {
   let res = {};
 
   let top10 = [];
-  console.log("here", process.cwd());
-  fs.readFile("./bigtest.txt", "utf8", function read(err, data) {
+  let topSet = new Set();
+  fs.readFile("./big.txt", "utf8", function read(err, data) {
     if (err) {
       throw err;
     }
     const content = data;
 
     // Invoke the next step here however you like
-    console.log(content); // Put all of the code here (not the best solution)
+    //console.log(content); // Put all of the code here (not the best solution)
     processFile(content); // Or put the next step in a function and invoke it
   });
+
+  //NOT USING THIS function anymore changed the array mapping logic below
   function insertTop10(ele, x) {
     //console.log(top10);
     //add  logic to check if element already there
-    
+
     top10.push({ ele, x });
     function compare(a, b) {
       // console.log(a, b, "compare");
@@ -36,24 +38,35 @@ export async function topWords(ctx) {
   function processFile(content) {
     // console.log("Ready to process");
     let data = content.split(" ");
-   // data = data.filter(d => d.length > 4);
-    console.log(data);
-    let map = new Map();
+    // data = data.filter(d => d.length > 4); // can be removed for faster iteration
+    //console.log(data);
+    let map = {}; //map of all words
     data.forEach(ele => {
-      if (map.get(ele) != undefined) {
-        let x = map.get(ele);
-        //console.log("x is ", x);
-        map.delete(ele);
-        let counter = ++x;
-        map.set(ele, counter);//check len here 
-        insertTop10(ele, counter);
-      } else {
-        map.set(ele, 1);
+      if (ele.length > 4) {
+        if (map[ele] != undefined) {
+          let x = map[ele];
+          let counter = ++x;
+          map[ele] = counter; //check len here
+          // insertTop10(ele, counter);
+        } else {
+          map[ele] = 1;
+        }
       }
     });
+    // we have frequency map of all words- just need to pick top 10 now
+    let frequencyMapArray = Object.entries(map);
 
-    console.log("TOP 10");
-    console.log(top10);
+    function compare([akey, aval], [bkey, bval]) {
+      //console.log([akey, aval], [bkey, bval], "compare");
+      if (aval > bval) return -1;
+      if (aval < bval) return 1;
+      return 0;
+    }
+    frequencyMapArray.sort(compare);
+    //console.log("TOP 10", temp);
+    frequencyMapArray = frequencyMapArray.slice(0, 10);
+    console.log(" final top 10 elements\n", frequencyMapArray);
+    //call the meanings API
     //const finalRes= await getDictData(top10);
     //ctx.body=finalRes;
   }
