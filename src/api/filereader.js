@@ -62,7 +62,12 @@ async function processFile(content, count) {
 }
 
 function transformResponse(response) {
-  if (response.code) {
+  if (
+    response.code ||
+    !response.def ||
+    !response.def[0] ||
+    !response.def[0].tr
+  ) {
     console.log("no data found");
     return [];
   }
@@ -93,6 +98,7 @@ export async function getDictData(top10) {
   let data = await Promise.all(dataP);
   // console.log("PUSHING", { word: wordInput, synonym: syn });
   //add data back to each element
+  //console.log(data);
   for (let i = 0; i < top10.length; i++) {
     const wordInput = top10[i][0];
     let dataJSON = JSON.parse(data[i]);
