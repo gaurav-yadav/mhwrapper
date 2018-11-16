@@ -10,7 +10,7 @@ app.use(bodyParser());
 
 //USE a mi
 
-app.use(router.get("/top", reader.topWords));
+app.use(router.get("/top/:count", reader.topWords));
 // app.use(router.get("/users", users.userData));
 // app.use(router.post("/calender/save/:userId", cal.createEvent));
 // app.use(router.post("/calender/accept/:userId", cal.acceptEvent));
