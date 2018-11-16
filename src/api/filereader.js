@@ -61,30 +61,42 @@ async function processFile(content, count) {
   return frequencyMapArray;
 }
 
-function transformResponse(data) {
-  const res = [];
-  //console.log(data, "ip tp transofrm");
-  if (data.length > 0) {
-    const transformeddata = data.map(d => {
-      if (d.syn) {
-        //somw rods don't hav syn
-        d.syn.map(x => res.push(x));
-      }
-    });
+function transformResponse(response) {
+  if (response.code) {
+    console.log("no data found");
+    return [];
   }
+  const res = [];
+  let data = response.def[0].tr;
+
+  const transformeddata = data.map(d => {
+    if (d.syn) {
+      //somw rods don't hav syn
+      d.syn.map(x => res.push(x));
+    }
+  });
+
   //console.log(res, "transform res");
   return res;
 }
 
 export async function getDictData(top10) {
   let wordswithSynonyms = [];
+  let dataP = [];
   for (let i = 0; i < top10.length; i++) {
     //  console.log("getting data for", top10[i]);
     //call the api with x return it to meaning data
     const wordInput = top10[i][0];
-    const data = await apiConnector(wordInput);
-    const syn = await transformResponse(data);
-    // console.log("PUSHING", { word: wordInput, synonym: syn });
+    dataP.push(apiConnector(wordInput));
+  }
+  //calling API parallely to reduce response time
+  let data = await Promise.all(dataP);
+  // console.log("PUSHING", { word: wordInput, synonym: syn });
+  //add data back to each element
+  for (let i = 0; i < top10.length; i++) {
+    const wordInput = top10[i][0];
+    let dataJSON = JSON.parse(data[i]);
+    let syn = await transformResponse(dataJSON);
     wordswithSynonyms.push({
       word: wordInput,
       synonym: syn,
@@ -104,9 +116,7 @@ export async function apiConnector(word) {
     const options = {
       url: url
     };
-    // Return new promise
-    let p = new Promise(function(resolve, reject) {
-      // Do async job
+    return new Promise(function(resolve, reject) {
       request.get(options, function(err, resp, body) {
         if (err) {
           reject(err);
@@ -115,15 +125,7 @@ export async function apiConnector(word) {
         }
       });
     });
-    return await p;
   }
 
-  const res = JSON.parse(await getData(url));
-  if (res.code) {
-    // console.log("no data found");
-    return [];
-  } else {
-    // console.log(res.def[0].tr, "inal");
-    return res.def[0].tr;
-  }
+  return getData(url);
 }
