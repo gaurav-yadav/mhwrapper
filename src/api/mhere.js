@@ -43,7 +43,8 @@ export async function markin(ctx) {
   let python = cp.spawnSync("python", ["mhereq.py", "in"], {
     input: "USER password"
   });
-
+  const data = python.stdout.toString();
+  ctx.body = { message: "done", data };
   ctx.body = python.stdout;
 }
 
@@ -51,5 +52,6 @@ export async function markout(ctx) {
   let python = cp.spawnSync("python", ["mhereq.py", "out"], {
     input: "USER password"
   });
-  ctx.body = python.stdout;
+  const data = python.stdout.toString();
+  ctx.body = { message: "done", data };
 }
