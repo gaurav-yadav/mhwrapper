@@ -44,6 +44,7 @@ export async function markin(ctx) {
     input: "USER password"
   });
   const data = python.stdout.toString();
+  console.log(data, "in data");
   ctx.body = { message: "done", data };
   ctx.body = python.stdout;
 }
@@ -53,5 +54,6 @@ export async function markout(ctx) {
     input: "USER password"
   });
   const data = python.stdout.toString();
+  console.log(data, "out data");
   ctx.body = { message: "done", data };
 }
